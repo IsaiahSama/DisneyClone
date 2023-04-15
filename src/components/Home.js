@@ -45,17 +45,17 @@ const Home = () => {
           default:
             break;
         }
+
+        dispatch(
+          setMovies({
+            recommend: recommends,
+            newDisney,
+            original: originals,
+            trending,
+          })
+        );
       });
     });
-
-    dispatch(
-      setMovies({
-        recommend: recommends,
-        newDisney,
-        original: originals,
-        trending,
-      })
-    );
   }, [userName]);
 
   return (
