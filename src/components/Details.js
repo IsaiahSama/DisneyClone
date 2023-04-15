@@ -31,6 +31,8 @@ const Details = () => {
             </div>
           </GroupWatch>
         </Controls>
+        <SubTitle>SubTitle</SubTitle>
+        <Description>Description</Description>
       </ContentMeta>
     </Container>
   );
@@ -182,6 +184,28 @@ const GroupWatch = styled.div`
 
   img {
     width: 100%;
+  }
+`;
+
+const SubTitle = styled.div`
+  color: rgb(249, 249, 249);
+  font-size: 15px;
+  min-height: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+`;
+
+const Description = styled.div`
+  margin-top: 1em;
+  line-height: 1.4;
+  font-size: 20px;
+  padding: 16px 0ps;
+  color: rgb(249, 249, 249);
+
+  @media (max-width: 768px) {
+    font-size: 14px;
   }
 `;
 
