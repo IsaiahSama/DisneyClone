@@ -150,9 +150,9 @@ const NavMenu = styled.div`
   margin-right: auto;
   margin-left: 25px;
 
-  /* @media (max-width: 768px) {
+  @media (max-width: 768px) {
     display: none;
-  } */
+  }
 
   a {
     display: flex;
