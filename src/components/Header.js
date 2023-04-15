@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebase";
@@ -10,6 +10,7 @@ import {
   selectUserEmail,
   selectUserPhoto,
   setUserLoginDetails,
+  setSignOutState,
 } from "../features/user/userSlice";
 
 const Header = () => {
@@ -17,14 +18,32 @@ const Header = () => {
   const navigate = useNavigate();
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
-  const userEmail = useSelector(selectUserEmail);
+
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUser(user);
+        navigate("/home");
+      }
+    });
+  }, [userName]);
 
   const handleAuth = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        setUser(result.user);
-      })
-      .catch((error) => alert(error.message));
+    if (!userName) {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          setUser(result.user);
+        })
+        .catch((error) => alert(error.message));
+    } else if (userName) {
+      auth
+        .signOut()
+        .then(() => {
+          dispatch(setSignOutState());
+          navigate("/");
+        })
+        .catch((err) => alert(err.message));
+    }
   };
 
   const setUser = (user) => {
@@ -73,7 +92,8 @@ const Header = () => {
               <span>SERIES</span>
             </a>
           </NavMenu>
-          <FallbackImg>
+          <SignOut>
+            {/* <FallbackImg> */}
             <UserImg
               src={userPhoto}
               onError={(e) => {
@@ -82,7 +102,11 @@ const Header = () => {
                 e.target.style.display = "none";
               }}
             />
-          </FallbackImg>
+            {/* </FallbackImg> */}
+            <DropDown>
+              <span onClick={handleAuth}>Sign Out</span>
+            </DropDown>
+          </SignOut>
         </>
       )}
     </Nav>
@@ -187,6 +211,7 @@ const Login = styled.a`
   border: 1px solid #f9f9f9;
   border-radius: 4px;
   transition: all 0.2s ease 0s;
+  cursor: pointer;
 
   &:hover {
     background-color: #f9f9f9;
@@ -199,11 +224,49 @@ const UserImg = styled.img`
   height: 100%;
 `;
 
-const FallbackImg = styled.div`
-  height: 70px;
-  width: 70px;
-  background-image: url(https://avatars.dicebear.com/api/human/${Math.random()}.svg);
-  background-size: cover;
+// const FallbackImg = styled.div`
+//   height: 70px;
+//   width: 70px;
+//   background-image: url(https://avatars.dicebear.com/api/human/${Math.random()}.svg);
+//   background-size: cover;
+// `;
+
+const DropDown = styled.div`
+  position: absolute;
+  top: 48px;
+  right: 0px;
+  background: rgb(19, 19, 19);
+  border: 1px solid rgba (151, 151, 151, 0.35);
+  border-radius: 5px;
+  box-shadow: rgb(0 0 0 / 50%) 0px 0px 18px 0px;
+  padding: 10px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  width: 100px;
+  opacity: 0;
+`;
+
+const SignOut = styled.div`
+  position: relative;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+
+  ${UserImg} {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+  }
+
+  &:hover {
+    ${DropDown} {
+      opacity: 1;
+      transition-duration: 1s;
+    }
+  }
 `;
 
 export default Header;
