@@ -1,7 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import db from "../firebase";
+import { collection, doc, getDoc } from "firebase/firestore";
 
 const Details = () => {
+  const { id } = useParams();
+  const [detailData, setDetailData] = useState({});
+
+  useEffect(() => {
+    const movieRef = doc(db, "movies", id);
+    getDoc(movieRef)
+      .then((data) => {
+        if (data.exists()) {
+          setDetailData(data.data());
+        } else {
+          console.error("No such documnet in the dataabse!");
+        }
+      })
+      .catch((e) => alert("Error getting document:", e.message));
+  }, [id]);
+
   return (
     <Container>
       <Background>
