@@ -2,14 +2,39 @@ import React from "react";
 import styled from "styled-components";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
+import {
+  selectUserName,
+  selectUserEmail,
+  selectUserPhoto,
+  setUserLoginDetails,
+} from "../features/user/userSlice";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userName = useSelector(selectUserName);
+  const userPhoto = useSelector(selectUserPhoto);
+  const userEmail = useSelector(selectUserEmail);
+
   const handleAuth = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
-        console.log(result);
+        setUser(result.user);
       })
       .catch((error) => alert(error.message));
+  };
+
+  const setUser = (user) => {
+    dispatch(
+      setUserLoginDetails({
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+      })
+    );
   };
 
   return (
@@ -17,33 +42,49 @@ const Header = () => {
       <Logo>
         <img src="/images/logo.svg" alt="Disney Logo" />
       </Logo>
-      <NavMenu>
-        <a href="/home">
-          <img src="/images/home-icon.svg" alt="HOME" />
-          <span>HOME</span>
-        </a>
-        <a href="/home">
-          <img src="/images/search-icon.svg" alt="SEARCH" />
-          <span>SEARCH</span>
-        </a>
-        <a href="/home">
-          <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
-          <span>WATCHLIST</span>
-        </a>
-        <a href="/home">
-          <img src="/images/original-icon.svg" alt="ORIGINALS" />
-          <span>ORIGINALS</span>
-        </a>
-        <a href="/home">
-          <img src="/images/movie-icon.svg" alt="MOVIES" />
-          <span>MOVIES</span>
-        </a>
-        <a href="/home">
-          <img src="/images/series-icon.svg" alt="SERIES" />
-          <span>SERIES</span>
-        </a>
-      </NavMenu>
-      <Login onClick={handleAuth}>Login</Login>
+
+      {!userName ? (
+        <Login onClick={handleAuth}>Login</Login>
+      ) : (
+        <>
+          <NavMenu>
+            <a href="/home">
+              <img src="/images/home-icon.svg" alt="HOME" />
+              <span>HOME</span>
+            </a>
+            <a href="/home">
+              <img src="/images/search-icon.svg" alt="SEARCH" />
+              <span>SEARCH</span>
+            </a>
+            <a href="/home">
+              <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
+              <span>WATCHLIST</span>
+            </a>
+            <a href="/home">
+              <img src="/images/original-icon.svg" alt="ORIGINALS" />
+              <span>ORIGINALS</span>
+            </a>
+            <a href="/home">
+              <img src="/images/movie-icon.svg" alt="MOVIES" />
+              <span>MOVIES</span>
+            </a>
+            <a href="/home">
+              <img src="/images/series-icon.svg" alt="SERIES" />
+              <span>SERIES</span>
+            </a>
+          </NavMenu>
+          <FallbackImg>
+            <UserImg
+              src={userPhoto}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "";
+                e.target.style.display = "none";
+              }}
+            />
+          </FallbackImg>
+        </>
+      )}
     </Nav>
   );
 };
@@ -58,7 +99,6 @@ const Nav = styled.nav`
   align-items: center;
   padding: 0 36px;
   width: 100%;
-  letter-spacing: 16px;
   z-index: 3;
 `;
 
@@ -153,6 +193,17 @@ const Login = styled.a`
     color: #111;
     border-color: transparent;
   }
+`;
+
+const UserImg = styled.img`
+  height: 100%;
+`;
+
+const FallbackImg = styled.div`
+  height: 70px;
+  width: 70px;
+  background-image: url(https://avatars.dicebear.com/api/human/${Math.random()}.svg);
+  background-size: cover;
 `;
 
 export default Header;
